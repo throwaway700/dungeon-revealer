@@ -13,11 +13,21 @@ jobs:
 
       - name: "Set environment: master"
         run: |
-          echo "::set-env name=COMMIT_SHORT::$(git rev-parse --short HEAD)"
+          set -x
+          COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
+          DESC=''
+          for row in $(echo "${COMMITS}" | jq -r '.[] | @base64'); do
+              _jq() {
+               echo ${row} | base64 --decode | jq -r ${1}
+              }
+             DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
+          done
+          echo "$DESC"
+          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "26880" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
+
+
 
       - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_UPDATES }}
-        uses: Ilshidur/action-discord@759f6ea
-        with:
-          args: "New commit pushed, master@${{ env.COMMIT_SHORT }}: *${{ github.event.head_commit.message }}*\n <${{ github.event.head_commit.url }}>"
+        uses: Ilshidur/action-discord@0.3.0
