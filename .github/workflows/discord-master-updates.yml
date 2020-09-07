@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: "Set environment: master"
+      - name: "Set environment for discord"
         run: |
           set -x
           COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
@@ -24,8 +24,6 @@ jobs:
           done
           echo "$DESC"
           echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "26880" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
-
-
 
       - name: Discord notification
         env:

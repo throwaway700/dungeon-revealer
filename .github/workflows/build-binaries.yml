@@ -212,10 +212,23 @@ jobs:
           asset_name: dungeon-revealer-linux-arm64-${{ env.GH_TAG }}.zip
           asset_content_type: application/zip
 
+      - name: "Set environment for discord"
+        if: success() && startsWith( github.ref, 'refs/heads')
+        run: |
+          set -x
+          COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
+          DESC=''
+          for row in $(echo "${COMMITS}" | jq -r '.[] | @base64'); do
+              _jq() {
+               echo ${row} | base64 --decode | jq -r ${1}
+              }
+             DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
+          done
+          echo "$DESC"
+          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "${GITHUB_REF##*/}@${{ env.COMMIT_SHORT }} binary build" --arg url "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}" --arg color "26880" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
+
       - name: Discord notification
         if: success() && startsWith( github.ref, 'refs/heads')
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_UPDATES }}
-        uses: Ilshidur/action-discord@759f6ea
-        with:
-          args: "New binary build finished, master@${{ env.COMMIT_SHORT }}: *${{ github.event.head_commit.message }}*\n <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}>"
+        uses: Ilshidur/action-discord@0.3.0
