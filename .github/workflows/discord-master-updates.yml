@@ -23,7 +23,7 @@ jobs:
              DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
           done
           echo "$DESC"
-          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "26880" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
+          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "13260" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
 
       - name: Discord notification
         env:
