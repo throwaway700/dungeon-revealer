@@ -225,7 +225,7 @@ jobs:
              DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
           done
           echo "$DESC"
-          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "${GITHUB_REF##*/}@${{ env.COMMIT_SHORT }} binary build" --arg url "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}" --arg color "16750848" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
+          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] binary build" --arg url "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}" --arg color "16750848" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
 
       - name: Discord notification
         if: success() && startsWith( github.ref, 'refs/heads')
