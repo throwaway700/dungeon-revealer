@@ -15,14 +15,14 @@ jobs:
         if: ${{ ! github.event.release.prerelease }} # Only prereleases
         run: |
           TEMPLATE='[{"title": $title, "url": $url, "color": $color, "description": $desc}]'
-          DESC="@everyone [${{ github.event.repository.name }}@${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}) release has been deployed!"$'\n'
+          DESC="<@&209893749231190017> [${{ github.event.repository.name }}@${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}) release has been deployed!"$'\n'
           echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "${{ github.event.release.name }} release" --arg url "${{ github.event.release.html_url }}" --arg color "26880" --arg desc "$DESC" "$TEMPLATE")"
 
       - name: "Set environment: prerelease"
         if: ${{ github.event.release.prerelease }} # Only prereleases
         run: |
           TEMPLATE='[{"title": $title, "url": $url, "color": $color, "description": $desc}]'
-          DESC="@everyone [${{ github.event.repository.name }}@${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}) prerelease has been deployed! Help us test before the release is finalized. Join the discussion in <#735901796127735958>"$'\n'
+          DESC="<@&209893749231190017> [${{ github.event.repository.name }}@${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}) prerelease has been deployed! Help us test before the release is finalized. Join the discussion in <#735901796127735958>"$'\n'
           echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "${{ github.event.release.name }} prerelease" --arg url "${{ github.event.release.html_url }}" --arg color "10027212" --arg desc "$DESC" "$TEMPLATE")"
 
       - name: Discord notification
