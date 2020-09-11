@@ -215,7 +215,6 @@ jobs:
       - name: "Set environment for discord"
         if: success() && startsWith( github.ref, 'refs/heads')
         run: |
-          set -x
           COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
           DESC=''
           for row in $(echo "${COMMITS}" | jq -r '.[] | @base64'); do
@@ -224,6 +223,9 @@ jobs:
               }
              DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
           done
+          if [ ${#DESC} -gt 2048 ]; then
+            DESC=$(echo $DESC | cut -c -2045)"..."
+          fi
           echo "$DESC"
           echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] binary build" --arg url "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}" --arg color "16750848" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
 

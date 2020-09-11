@@ -13,7 +13,7 @@ jobs:
 
       - name: "Set environment for discord"
         run: |
-          set -x
+          TEMPLATE='[{"title": $title, "url": $url, "color": $color, "description": $desc}]'
           COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
           DESC=''
           for row in $(echo "${COMMITS}" | jq -r '.[] | @base64'); do
@@ -22,8 +22,11 @@ jobs:
               }
              DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
           done
+          if [ ${#DESC} -gt 2048 ]; then
+            DESC=$(echo $DESC | cut -c -2045)"..."
+          fi
           echo "$DESC"
-          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "13260" --arg desc "$DESC" '[{"title": $title, "url": $url, "color": $color, "description": $desc}]')"
+          echo "::set-env name=DISCORD_EMBEDS::$(jq -nc --arg title "[${{ github.event.repository.name }}:${GITHUB_REF##*/}] new commit" --arg url "${{ github.event.compare }}" --arg color "13260" --arg desc "$DESC" "$TEMPLATE")"
 
       - name: Discord notification
         env:
