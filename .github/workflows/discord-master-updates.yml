@@ -13,8 +13,15 @@ jobs:
 
       - name: "Set environment for discord"
         run: |
+          # Template json to send as an embed
+          # jq replaces $var with `jq --arg var <value> "$TEMPLATE"`
           TEMPLATE='[{"title": $title, "url": $url, "color": $color, "description": $desc}]'
+
+          # Grab the list of commits from event.json
           COMMITS=$(cat $GITHUB_EVENT_PATH | jq -c '.commits')
+
+          # Iterate through each commit and create the formatted string:
+          # [`<commit_sha_short>`](<commit_url>) <commit_message>\n <other_commits>
           DESC=''
           for row in $(echo "${COMMITS}" | jq -r '.[] | @base64'); do
               _jq() {
@@ -22,6 +29,8 @@ jobs:
               }
              DESC=$DESC$(printf "[%s](%s) %s" $'`'"$(_jq '.id' | cut -c -7)"$'`' "$(_jq '.url')" "$(_jq '.message')")$'\n'
           done
+
+          # Check if description is longer than the character limit
           if [ ${#DESC} -gt 2048 ]; then
             DESC=$(echo $DESC | cut -c -2045)"..."
           fi
