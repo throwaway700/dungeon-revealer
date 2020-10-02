@@ -7,3 +7,6 @@ Click on the token tool on the left and then click somewhere on the map that you
 Tokens visible to players can also be moved by them. Click the `Lock` button at the bottom of the token menu to lock it in place.
 
 Linking a note to a token can be useful for the DM. You can use it for creature/player stats, item descriptions, room notes, or anything else you can think of. Click the `Link` button to link a note to the token. You can choose an existing note or create a new one. See the [Notes](https://github.com/maxb2/dungeon-revealer/wiki/Notes) page for more details.
+
+
+A simple change.
